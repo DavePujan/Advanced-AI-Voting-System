@@ -26,9 +26,14 @@ def get_db_connection():
         # Debugging Connection Params (safely)
         masked_pw = DB_PASS[:3] + "*" * (len(DB_PASS)-6) + DB_PASS[-3:] if len(DB_PASS) > 6 else "***"
         st.write(f"🔌 **Connecting to:** `{DB_HOST}:{DB_PORT}`")
-        st.write(f"👤 **User:** `{DB_USER}` | 🔑 **Pass:** `{masked_pw}`")
+        st.write(f"👤 **User:** `{DB_USER}` | 🔑 **Pass:** `{masked_pw}` (Len: {len(DB_PASS)})")
         st.write(f"🔒 **SSL CA Status:** {ssl_status}")
         st.write(f"📂 **CWD:** `{os.getcwd()}`")
+
+        # Hint for Aiven users
+        if "aiven" in DB_HOST:
+             st.info("💡 **Aiven Tip:** New accounts default to 'Allow all IPs', but if you edited 'Allowed IP Addresses', add `0.0.0.0/0` to allow Streamlit Cloud.")
+             st.info("💡 **Password Check:** Did you click 'Reset Password' recently? If so, update your secrets!")
 
         conn = mysql.connector.connect(**config)
         return conn
