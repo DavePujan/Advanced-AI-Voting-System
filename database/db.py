@@ -16,14 +16,24 @@ def get_db_connection():
         }
         
         # Check for Aiven CA Certificate (ca.pem)
+        ssl_status = "Not Found"
         if os.path.exists("ca.pem"):
-            config["ssl_ca"] = "ca.pem"
+            config["ssl_ca"] = os.path.abspath("ca.pem")
             config["ssl_disabled"] = False
+            config["ssl_verify_cert"] = True
+            ssl_status = f"Found at {os.path.abspath('ca.pem')}"
         
+        # Debugging Connection Params (safely)
+        masked_pw = DB_PASS[:3] + "*" * (len(DB_PASS)-6) + DB_PASS[-3:] if len(DB_PASS) > 6 else "***"
+        st.write(f"🔌 **Connecting to:** `{DB_HOST}:{DB_PORT}`")
+        st.write(f"👤 **User:** `{DB_USER}` | 🔑 **Pass:** `{masked_pw}`")
+        st.write(f"🔒 **SSL CA Status:** {ssl_status}")
+        st.write(f"📂 **CWD:** `{os.getcwd()}`")
+
         conn = mysql.connector.connect(**config)
         return conn
     except mysql.connector.Error as err:
-        st.error(f"⚠️ Connection Failed: {err}")
+        st.error(f"❌ Connection Failed: {err}")
         return None
 
 # ... (init_db unchanged for now, handled by app.py try/catch)
