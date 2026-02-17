@@ -3,15 +3,24 @@ import hashlib
 from config import DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT
 import streamlit as st
 
+import os
+
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASS,
-            database=DB_NAME,
-            port=DB_PORT
-        )
+        config = {
+            "host": DB_HOST,
+            "user": DB_USER,
+            "password": DB_PASS,
+            "database": DB_NAME,
+            "port": DB_PORT
+        }
+        
+        # Check for Aiven CA Certificate (ca.pem)
+        if os.path.exists("ca.pem"):
+            config["ssl_ca"] = "ca.pem"
+            config["ssl_disabled"] = False
+        
+        conn = mysql.connector.connect(**config)
         return conn
     except mysql.connector.Error as err:
         st.error(f"⚠️ Connection Failed: {err}")
@@ -41,12 +50,17 @@ def hash_password(password):
 
 def init_db():
     try:
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASS,
-            port=DB_PORT
-        )
+        config = {
+            "host": DB_HOST,
+            "user": DB_USER,
+            "password": DB_PASS,
+            "port": DB_PORT
+        }
+        if os.path.exists("ca.pem"):
+            config["ssl_ca"] = "ca.pem"
+            config["ssl_disabled"] = False
+
+        conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
         
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
