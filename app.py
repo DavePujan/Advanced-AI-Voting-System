@@ -40,7 +40,30 @@ if st.session_state.user:
     menu = st.sidebar.selectbox("Menu", ["Dashboard", "Logout"])
 else:
     # Public Menu
+    # Public Menu
     menu = st.sidebar.selectbox("Menu", ["Login", "Register User", "Register Organization"])
+
+# --- DEBUGGER (Remove before final production) ---
+with st.sidebar.expander("🛠️ Debug Info"):
+    st.write(f"**Target Host:** `{DB_HOST}`")
+    
+    if DB_HOST == "localhost":
+        st.error("⚠️ Falling back to localhost! Cloud DB not connected.")
+        st.write("Reason: `st.secrets` missing or keys don't match `config.py`.")
+    else:
+        st.success("✅ targeted Cloud DB")
+
+    # Show available top-level keys (safely)
+    try:
+        if st.secrets:
+            st.write("**Available Secret Sections:**", list(st.secrets.keys()))
+            if "mysql" in st.secrets:
+                 st.write("**Keys in [mysql]:**", list(st.secrets["mysql"].keys()))
+        else:
+             st.warning("No secrets found at all.")
+    except Exception as e:
+        st.write(f"Error reading secrets: {e}")
+# -------------------------------------------------
 
 # ==========================
 # PUBLIC ROUTES

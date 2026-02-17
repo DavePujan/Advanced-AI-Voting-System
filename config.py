@@ -2,24 +2,39 @@ import streamlit as st
 
 # MySQL Configuration
 
-# Try to load from Streamlit Secrets (for Cloud Deployment)
-try:
-    DB_HOST = st.secrets["DB_HOST"]
-    DB_USER = st.secrets["DB_USER"]
-    DB_PASS = st.secrets["DB_PASS"]
-    DB_NAME = st.secrets["DB_NAME"]
-    DB_PORT = int(st.secrets.get("DB_PORT", 3306)) # Default to 3306
-except (FileNotFoundError, KeyError):
-    # Fallback to Local Configuration (for Development)
-    DB_HOST = "localhost"
-    DB_USER = "root"
-    
-    # ⚠️ IMPORTANT: Update this password to match your local MySQL setup
-    # If you get "Access denied", it's likely because this password is wrong.
-    DB_PASS = "root" 
-    
-    DB_NAME = "voting_system"
-    DB_PORT = 3306
+def load_db_config():
+    """
+    Attempts to load DB config from st.secrets, handling multiple formats
+    (flat keys, nested [mysql] section, key aliases).
+    """
+    try:
+        # 1. Determine source (Root or [mysql] section)
+        source = st.secrets
+        if "mysql" in st.secrets:
+            source = st.secrets["mysql"]
+            
+        # 2. Extract with fallback aliases
+        host = source.get("DB_HOST")
+        
+        user = source.get("DB_USER") or source.get("DB_USERNAME")
+        
+        password = source.get("DB_PASS") or source.get("DB_PASSWORD") or source.get("DB_KEY")
+        
+        name = source.get("DB_NAME") or source.get("DB_DATABASE")
+        
+        port = source.get("DB_PORT", 3306)
+
+        # 3. Validate
+        if not (host and user and password and name):
+            raise KeyError(f"Missing one or more required keys. Found: Host={host}, User={user}, Name={name}")
+
+        return host, user, password, name, int(port)
+
+    except (FileNotFoundError, KeyError) as e:
+        # Fallback to Local Configuration (Development)
+        return "localhost", "root", "root", "voting_system", 3306
+
+DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT = load_db_config()
 
 # Liveness Config (Legacy param, kept for compatibility if needed)
 EYE_AR_THRESH = 0.30
