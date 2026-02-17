@@ -1,6 +1,7 @@
 import mysql.connector
 import hashlib
 from config import DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT
+import streamlit as st
 
 def get_db_connection():
     try:
@@ -13,7 +14,27 @@ def get_db_connection():
         )
         return conn
     except mysql.connector.Error as err:
+        st.error(f"⚠️ Connection Failed: {err}")
         return None
+
+# ... (init_db unchanged for now, handled by app.py try/catch)
+
+# --- Organization Functions ---
+def create_org(name, org_type):
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO organizations(name, type) VALUES(%s, %s)", (name, org_type))
+            conn.commit()
+            org_id = cursor.lastrowid
+            cursor.close()
+            conn.close()
+            return org_id
+        except mysql.connector.Error as err:
+            st.error(f"⚠️ Create Org Failed: {err}")
+            return None
+    return None
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()

@@ -11,8 +11,8 @@ from vision.liveness import check_liveness, reset_liveness
 # Initialize database
 try:
     init_db()
-except Exception:
-    pass
+except Exception as e:
+    st.error(f"❌ Database Error: {e}")
 
 # Validates and reloads embeddings from DB
 def get_known_faces():
