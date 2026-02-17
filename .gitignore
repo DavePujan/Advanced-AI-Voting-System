@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Project Data (Optional - Keep this if you want to track empty folder structure but not large data)
+# data/
+
+# IDE
+.vscode/
+.idea/
+
+# Local Only
+fix_db.py
+debug_db.py
+test_vote.py
+deployment_guide.md

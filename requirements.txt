@@ -1,0 +1,9 @@
+streamlit
+opencv-python
+deepface
+tf-keras
+mediapipe
+mysql-connector-python
+numpy
+pandas
+pillow
