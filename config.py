@@ -28,7 +28,7 @@ def load_db_config():
         if not (host and user and password and name):
             raise KeyError(f"Missing one or more required keys. Found: Host={host}, User={user}, Name={name}")
 
-        return host, user, password, name, int(port)
+        return str(host).strip(), str(user).strip(), str(password).strip(), str(name).strip(), int(port)
 
     except (FileNotFoundError, KeyError) as e:
         # Fallback to Local Configuration (Development)
